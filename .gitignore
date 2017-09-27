@@ -1,0 +1,11 @@
+*.pyc
+.idea/
+*.txt
+*.zip
+*.jpg
+*.ply
+*.obj
+*.mtl
+media/
+static/
+db.sqlite3

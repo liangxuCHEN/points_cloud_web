@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}小程序{% endblock %}
+{% block content %}
+<div class="well">
+<h1>欢迎来到这里</h1>
+</div>
+    <div class="well">
+    <h3>PLY 模型</h3>
+    <p><a href="{% url 'tdmodel_index' %}"> 进入</a></p>
+
+    <h3>OBJ 模型</h3>
+    <p><a href="{% url 'objmodel_index' %}"> 进入</a></p>
+    </div>
+
+<a class="btn btn-default" onclick="function(){fun(){$('#data_info').show()}}"> 数据</a>
+<div class="modal fade DialogContainer" tabindex="-1" role="dialog" aria-labelledby="ModalTitle" aria-hidden="true" style="display: none;" id="data_info" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" style="margin-top:20px;width:600px;">
+        <div class="modal-content" style="margin:0 auto;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">数据</h4>
+            </div>
+            <div class="modal-body" style="height:500px;">
+				{% if res %}
+				<div class="well">
+					<ul>
+						<li>垂直方向</li>
+						<li>face_left_height : {{res.face_left_height}}</li>
+						<li>face_right_height : {{res.face_right_height}}</li>
+						<li>back_right_height : {{res.back_right_height}}</li>
+						<li>back_left_height : {{res.back_left_height}}</li>
+						<li>水平方向</li>
+						<li>face_bottom_length : {{res.face_bottom_length}}</li>
+						<li>face_above_length : {{res.face_above_length}}</li>
+						<li>back_bottom_length : {{res.back_bottom_length}}</li>
+						<li>back_above_length : {{res.back_above_length}}</li>
+						<li>深度方向</li>
+						<li>face_right_bottom : {{res.face_right_bottom}}</li>
+						<li>face_right_above : {{res.face_right_above}}</li>
+						<li>face_left_bottom : {{res.face_left_bottom}}</li>
+						<li>face_left_above : {{res.face_left_above}}</li>
+					</ul>
+				</div>
+				{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

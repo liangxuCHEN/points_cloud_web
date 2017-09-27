@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}模板列表{% endblock %}
+{% block content %}
+{% if info %}
+    <p>{{info}}</p>
+{% endif %}
+<form action="{% url 'upload_zip'%}" method="POST" enctype="multipart/form-data">
+        <label>上传文档(扩展名：zip) ：</label><br>
+        <input type="file" name="obj_zip" /><br/>
+        <input type="text" name="name" placeholder="模型名字" />
+        <input type="submit" value="上传文档" />
+    </form>
+{% endblock%}
