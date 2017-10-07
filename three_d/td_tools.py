@@ -1,6 +1,11 @@
 from pyntcloud import PyntCloud
 import pandas as pd
+import numpy as np
 
+
+K_TREE_NUM = 25
+Z_MAX = 0.18
+R = 0.035
 
 # Binning:
 def binning(col):
@@ -117,3 +122,40 @@ def find_the_edge_length(file_name):
     result['face_left_above'] = pole_0.median() - pole_1.median()
 
     return result
+
+def filter_points(file_name):
+    model  = PyntCloud.from_file(file_name)
+    kdtree = model.add_structure("kdtree")
+    # 外部区分
+    voxelgrid = model.add_structure("voxelgrid", sizes=[0.05] * 3)
+    clusters = model.add_scalar_field("euclidean_clusters", voxelgrid=voxelgrid)
+    drop_cloud = PyntCloud(model.points[model.points[clusters]==0.0])
+    # 平滑处理
+    drop_cloud.points['sor'] = drop_cloud.get_filter("SOR", kdtree=kdtree, k=K_TREE_NUM, z_max=0.18)
+    # 轮廓特征
+    drop_cloud.points['ror'] = drop_cloud.get_filter("ROR", kdtree=kdtree, k=K_TREE_NUM, r=0.075)
+    drop_cloud.points.drop(drop_cloud.points[(drop_cloud.points['sor']==False) | (drop_cloud.points['ror']==False)].index, inplace=True)
+    
+    # 内部区分
+    drop_cloud = PyntCloud(drop_cloud.points)
+    voxelgrid = drop_cloud.add_structure("voxelgrid", sizes=[0.03] * 3)
+    clusters = drop_cloud.add_scalar_field("euclidean_clusters", voxelgrid=voxelgrid)
+    gc = drop_cloud.points.groupby(clusters).size().sort_values(ascending=False)
+    # 添加颜色
+    drop_cloud.points['red']=pd.Series([0] * (x.points.index.max()+1))
+    drop_cloud.points['green']=pd.Series([100] * (x.points.index.max()+1))
+    drop_cloud.points['blue']=pd.Series([0] * (x.points.index.max()+1))
+
+    red = pd.Series([0] * (x.points.index.max()+1))
+    blue = pd.Series([0] * (x.points.index.max()+1))
+    for i in gc[:5].index:
+        for red_index in drop_cloud.points[drop_cloud.points[clusters]==i].index:
+            red[red_index] = ((i + 10) * 3) % 255
+            blue[red_index] = ((i + 2) * 2) % 255
+        #print(x.points[x.points[clusters]==i]['blue'])
+    drop_cloud.points['red'] =  red
+    drop_cloud.points['blue'] =  blue
+
+    # 保存处理后的版本
+    x.points.drop(['ror', 'sor', clusters], 1, inplace=True)
+    x.to_file('sample_'+file_name)
